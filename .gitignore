@@ -1,0 +1,54 @@
+# --- Local / secrets ---
+config/env
+.maps/
+*.log
+/tmp/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# MATLAB generated at runtime
+matlab/fastdds_matlab_native.xml
+
+# --- Large vendored stacks (install locally; see docs/NATIVE_LINUX_SETUP.md) ---
+esp/esp-idf/
+tooling/
+archives/
+
+# --- ROS 2 colcon outputs (keep src/, ignore artifacts) ---
+ros/**/build/
+ros/**/install/
+ros/**/log/
+
+# --- ESP-IDF build outputs (keep source + sdkconfig) ---
+**/build/
+**/sdkconfig.old
+esp/**/managed_components/
+
+# micro-ROS component: ignore generated toolchain + prebuilt lib (rebuilt by idf.py)
+esp/Samples/extra_components/micro_ros_espidf_component/esp32_toolchain.cmake
+esp/Samples/extra_components/micro_ros_espidf_component/libmicroros.a
+esp/Samples/extra_components/micro_ros_espidf_component/micro_ros_src/build/
+esp/Samples/extra_components/micro_ros_espidf_component/micro_ros_src/install/
+esp/Samples/extra_components/micro_ros_espidf_component/micro_ros_src/log/
+esp/Samples/extra_components/micro_ros_espidf_component/micro_ros_dev/build/
+esp/Samples/extra_components/micro_ros_espidf_component/micro_ros_dev/install/
+esp/Samples/extra_components/micro_ros_espidf_component/micro_ros_dev/log/
+esp/Samples/custom_components/micro_ros_espidf_component/esp32_toolchain.cmake
+esp/Samples/custom_components/micro_ros_espidf_component/libmicroros.a
+
+# Other ESP sample trees (production firmware is lidar_publisher only)
+esp/Samples/esp32_samples/
+esp/Samples/microros_samples/*/
+!esp/Samples/microros_samples/lidar_publisher/
+esp/Samples/custom_components/
+
+# OS / editor
+.DS_Store
+*~
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Native Linux MATLAB — bind loopback + LAN IP (same machine as micro-ROS agent). -->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <participant profile_name="matlab_native" is_default_profile="true">
+    <rtps>
+      <defaultUnicastLocatorList>
+        <locator>
+          <udpv4>
+            <address>127.0.0.1</address>
+          </udpv4>
+        </locator>
+        <locator>
+          <udpv4>
+            <address>@LAN_IP@</address>
+          </udpv4>
+        </locator>
+      </defaultUnicastLocatorList>
+      <builtin>
+        <metatrafficUnicastLocatorList>
+          <locator>
+            <udpv4>
+              <address>127.0.0.1</address>
+            </udpv4>
+          </locator>
+          <locator>
+            <udpv4>
+              <address>@LAN_IP@</address>
+            </udpv4>
+          </locator>
+        </metatrafficUnicastLocatorList>
+        <initialPeersList>
+          <locator>
+            <udpv4>
+              <address>127.0.0.1</address>
+            </udpv4>
+          </locator>
+          <locator>
+            <udpv4>
+              <address>@LAN_IP@</address>
+            </udpv4>
+          </locator>
+        </initialPeersList>
+      </builtin>
+    </rtps>
+  </participant>
+</profiles>

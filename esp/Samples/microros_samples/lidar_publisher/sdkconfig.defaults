@@ -1,0 +1,4 @@
+# Synced from config/env — run ./scripts/sync_firmware_config.sh
+CONFIG_MICRO_ROS_DOMAIN_ID=20
+CONFIG_MICRO_ROS_AGENT_IP="10.0.0.29"
+CONFIG_MICRO_ROS_AGENT_PORT="8090"
