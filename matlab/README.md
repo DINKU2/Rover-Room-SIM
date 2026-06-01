@@ -50,6 +50,18 @@ matlab_connect            % full URDF + teleop GUI (native DDS)
 
 `setup_ros_humble.m` sets domain 20, FastDDS profile, and aligns with `/opt/ros/humble`.
 
+## Simulink
+
+Step-by-step guide (drag blocks, Stateflow, Unreal):
+
+- [docs/SIMULINK_ROS_BLUEPRINT.md](../docs/SIMULINK_ROS_BLUEPRINT.md)
+
+After creating `simulink/rover_ros_io.slx` in the Simulink GUI:
+
+```matlab
+run_simulink_ros
+```
+
 ## Files
 
 | File | Role |
@@ -64,6 +76,7 @@ matlab_connect            % full URDF + teleop GUI (native DDS)
 | `ros_test.m` | One-shot check |
 | `matlab_connect.m` | Full GUI teleop |
 | `matlab_connect_bridge.m` | Legacy TCP bridge GUI (fallback) |
+| `run_simulink_ros.m` | Run Simulink model after `setup_ros_humble` |
 
 ## R2026a / Jazzy
 

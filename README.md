@@ -33,6 +33,7 @@ See **`docs/NATIVE_LINUX_SETUP.md`** for one-time install and MATLAB bridge work
 |-----|---------|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design — toolboxes, ROS, Unreal, maps, frames |
 | [docs/PHASES.md](docs/PHASES.md) | Implementation phases and exit criteria |
+| [docs/SIMULINK_ROS_BLUEPRINT.md](docs/SIMULINK_ROS_BLUEPRINT.md) | Step-by-step Simulink + ROS + Unreal block diagram |
 
 ## Flash firmware (bundled IDF — no ~/esp needed)
 
