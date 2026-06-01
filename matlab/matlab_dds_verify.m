@@ -68,7 +68,7 @@ function ok = matlab_dds_verify(timeoutSec)
     ok = odomOk && scanOk;
     if odomOk && scanOk
         fprintf('[PASS] MATLAB receives live odom + scan.\n');
-        fprintf('Next: matlab_connect\n');
+        fprintf('Next: ctx = ros_connect();  or matlab_connect\n');
     elseif odomOk
         fprintf('[PARTIAL] Odom OK, scan failed — check best-effort QoS.\n');
     else

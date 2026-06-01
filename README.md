@@ -27,6 +27,13 @@ source ./setup.bash
 
 See **`docs/NATIVE_LINUX_SETUP.md`** for one-time install and MATLAB bridge workflow.
 
+## Architecture
+
+| Doc | Content |
+|-----|---------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design — toolboxes, ROS, Unreal, maps, frames |
+| [docs/PHASES.md](docs/PHASES.md) | Implementation phases and exit criteria |
+
 ## Flash firmware (bundled IDF — no ~/esp needed)
 
 ```bash

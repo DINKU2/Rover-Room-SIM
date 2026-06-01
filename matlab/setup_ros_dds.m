@@ -33,7 +33,8 @@ function cfg = setup_ros_dds(useDiscoveryServer)
     lanIp = readLanIp(projectRoot);
     xmlPath = fullfile(matlabDir, 'fastdds_matlab_native.xml');
     writeNativeFastDds(projectRoot, lanIp, xmlPath);
-    unsetenv('FASTRTPS_DEFAULT_PROFILES_FILE');
+    % Bind loopback + LAN IP — required for MATLAB to receive (not just discover).
+    setenv('FASTRTPS_DEFAULT_PROFILES_FILE', xmlPath);
 
     cfg = struct();
     cfg.domainId = '20';
@@ -44,7 +45,7 @@ function cfg = setup_ros_dds(useDiscoveryServer)
     fprintf('ROS DDS configured for MATLAB:\n');
     fprintf('  ROS_DOMAIN_ID=%s\n', cfg.domainId);
     fprintf('  ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET\n');
-    fprintf('  FASTRTPS_DEFAULT_PROFILES_FILE=(default)\n');
+    fprintf('  FASTRTPS_DEFAULT_PROFILES_FILE=%s\n', xmlPath);
     fprintf('  LAN IP=%s\n', cfg.lanIp);
     if useDiscoveryServer
         fprintf('  ROS_DISCOVERY_SERVER=127.0.0.1:11811\n');

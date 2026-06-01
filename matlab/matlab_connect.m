@@ -2,8 +2,10 @@ function matlab_connect()
 %MATLAB_CONNECT  Live Yahboom micro-ROS robot in MATLAB (native Linux DDS).
 %
 % Controls (same as ./scripts/run_teleop.sh):
-%   i / ,     forward / back
-%   j / l     turn left / right
+%   i / ↑         forward
+%   , / S / K / ↓ back      (comma often reports as "comma" in MATLAB on Linux)
+%   j / ←         turn left
+%   l / →         turn right
 %   u o m .   diagonals
 %   space     stop
 %   q / z     faster / slower
@@ -13,7 +15,7 @@ function matlab_connect()
 % Do not run ./scripts/run_teleop.sh while MATLAB publishes /cmd_vel.
 
     cfg = prepare_robot_assets();
-    setup_ros_dds();
+    setup_ros_humble();
 
     fprintf('Robot preflight (shell)...\n');
     if ~check_robot_preflight()
@@ -59,6 +61,10 @@ function matlab_connect()
 
     fig = figure('Name', 'Yahboom micro-ROS - MATLAB', 'NumberTitle', 'off', ...
         'MenuBar', 'none', 'ToolBar', 'none');
+    fig.WindowKeyPressFcn = @onKey;
+    fig.WindowKeyReleaseFcn = @onKeyRelease;
+    fig.CloseRequestFcn = @(~, ~) stopAndClose();
+
     axMap = subplot(1, 2, 1);
     title(axMap, 'Map view (odom + lidar)');
     xlabel(axMap, 'x [m]'); ylabel(axMap, 'y [m]');
@@ -68,9 +74,10 @@ function matlab_connect()
     title(axRobot, 'URDF model');
     show(robot, homeConfiguration(robot), 'Parent', axRobot, 'Frames', 'off');
     view(axRobot, 3); axis(axRobot, 'equal'); grid(axRobot, 'on');
+    disableFigureNavigation(fig, axRobot);
 
-    helpStr = ['Keys (teleop):  i=fwd  ,=back  j/l=turn  uom.=diag  ' ...
-        'space=stop  q/w=speed up/down  z=quit'];
+    helpStr = ['Keys:  i/↑=fwd  ,/S/K/↓=back  j/←=left  l/→=right  ' ...
+        'uom.=diagonals  hold to drive, release to stop  q/w=speed  z=quit'];
     uicontrol('Style', 'text', 'Units', 'normalized', 'Position', [0.02 0.01 0.96 0.04], ...
         'String', helpStr, 'HorizontalAlignment', 'left', 'BackgroundColor', get(fig, 'Color'));
 
@@ -91,16 +98,15 @@ function matlab_connect()
     lastYaw = 0;
     lastSentMoving = false;
 
-    fig.WindowKeyPressFcn = @onKey;
-    fig.WindowKeyReleaseFcn = @onKeyRelease;
-    fig.CloseRequestFcn = @(~, ~) stopAndClose();
-
     timerObj = timer('ExecutionMode', 'fixedRate', 'Period', 0.1, ...
         'TimerFcn', @(~, ~) controlLoop());
     start(timerObj);
 
+    figure(fig);
+    drawnow;
+
     fprintf('%s\n', helpStr);
-    fprintf('Click the figure window, then press i/j/k/l to drive.\n');
+    fprintf('Click this window, then hold i/j/l/, to drive (release to stop). Press z to quit.\n');
     while running && ishandle(fig)
         pause(0.05);
     end
@@ -145,33 +151,21 @@ function matlab_connect()
     end
 
     function onKeyRelease(~, ev)
-        switch ev.Key
-            case {'i', ',', 'j', 'l', 'u', 'o', 'm', '.', ...
-                    'uparrow', 'downarrow', 'leftarrow', 'rightarrow'}
-                moveX = 0;
-                moveTh = 0;
+        k = normalizeKey(ev);
+        if isMovementKey(k)
+            moveX = 0;
+            moveTh = 0;
         end
     end
 
     function onKey(~, ev)
-        k = ev.Key;
+        k = normalizeKey(ev);
+        if isMovementKey(k)
+            figure(fig);
+            applyMovementKey(k);
+            return;
+        end
         switch k
-            case {'i', 'uparrow'}
-                moveX = 1;  moveTh = 0;
-            case {',', 'downarrow'}
-                moveX = -1; moveTh = 0;
-            case {'j', 'leftarrow'}
-                moveX = 0;  moveTh = 1;
-            case {'l', 'rightarrow'}
-                moveX = 0;  moveTh = -1;
-            case 'u'
-                moveX = 1;  moveTh = 1;
-            case 'o'
-                moveX = 1;  moveTh = -1;
-            case 'm'
-                moveX = -1; moveTh = -1;
-            case '.'
-                moveX = -1; moveTh = 1;
             case 'space'
                 moveX = 0;  moveTh = 0;
             case 'q'
@@ -186,6 +180,48 @@ function matlab_connect()
                 running = false;
             otherwise
                 return;
+        end
+    end
+
+    function k = normalizeKey(ev)
+        k = ev.Key;
+        if isempty(k) || strcmp(k, 'undefined')
+            k = ev.Character;
+        end
+        if isempty(k)
+            k = '';
+            return;
+        end
+        % MATLAB/Linux often reports punctuation by name, not character.
+        if strcmp(k, 'comma'), k = ','; end
+        if strcmp(k, 'period'), k = '.'; end
+        k = lower(k);
+    end
+
+    function tf = isMovementKey(k)
+        tf = any(strcmp(k, {'i', 'j', 'l', 'u', 'o', 'm', ...
+            ',', 's', 'k', '.', ...
+            'uparrow', 'downarrow', 'leftarrow', 'rightarrow'}));
+    end
+
+    function applyMovementKey(k)
+        switch k
+            case {'i', 'uparrow'}
+                moveX = 1;  moveTh = 0;
+            case {',', 's', 'k', 'downarrow'}
+                moveX = -1; moveTh = 0;
+            case {'j', 'leftarrow'}
+                moveX = 0;  moveTh = 1;
+            case {'l', 'rightarrow'}
+                moveX = 0;  moveTh = -1;
+            case 'u'
+                moveX = 1;  moveTh = 1;
+            case 'o'
+                moveX = 1;  moveTh = -1;
+            case 'm'
+                moveX = -1; moveTh = -1;
+            case '.'
+                moveX = -1; moveTh = 1;
         end
     end
 
@@ -206,51 +242,15 @@ function matlab_connect()
     end
 
     function msg = pullScan()
-        msg = tryReceive(scanSub, 0.02);
-        if isempty(msg)
-            msg = tryLatestMessage(scanSub);
-        end
+        msg = pullLatest(scanSub);
     end
 
     function msg = pullOdom()
-        msg = tryReceive(odomSub, 0.02);
-        if isempty(msg)
-            msg = tryLatestMessage(odomSub);
-        end
+        msg = pullLatest(odomSub);
     end
 end
 
-function ok = waitForTopicOptional(sub, timeoutSec)
-    t0 = tic;
-    while toc(t0) < timeoutSec
-        if ~isempty(tryReceive(sub, 0.5))
-            ok = true;
-            return;
-        end
-        pause(0.1);
-    end
-    ok = false;
-end
-
-function waitForTopic(sub, timeoutSec)
-    t0 = tic;
-    while toc(t0) < timeoutSec
-        if ~isempty(tryReceive(sub, 0.5)), return; end
-        pause(0.1);
-    end
-    error('matlab_connect:Timeout', ...
-        'No live data on %s within %d s.', sub.TopicName, timeoutSec);
-end
-
-function msg = tryReceive(sub, timeoutSec)
-    msg = [];
-    try
-        msg = receive(sub, timeoutSec);
-    catch
-    end
-end
-
-function msg = tryLatestMessage(sub)
+function msg = pullLatest(sub)
     msg = [];
     try
         if isprop(sub, 'LatestMessage')
@@ -259,6 +259,42 @@ function msg = tryLatestMessage(sub)
         end
     catch
     end
+end
+
+function ok = waitForTopicOptional(sub, timeoutSec)
+    t0 = tic;
+    while toc(t0) < timeoutSec
+        if ~isempty(pullLatest(sub))
+            ok = true;
+            return;
+        end
+        pause(0.1);
+    end
+    ok = false;
+end
+
+function disableFigureNavigation(fig, axRobot)
+    try
+        disableDefaultInteractivity(axRobot);
+    catch
+        rotate3d(axRobot, 'off');
+    end
+    try
+        axtoolbar(axRobot, {});
+    catch
+    end
+    zoom(fig, 'off');
+    pan(fig, 'off');
+    rotate3d(fig, 'off');
+end
+
+function msg = tryLatestMessage(sub)
+    msg = pullLatest(sub);
+end
+
+function msg = tryReceive(sub, timeoutSec) %#ok<INUSD>
+    % Deprecated: receive() in a fast timer causes timeouts; use pullLatest.
+    msg = pullLatest(sub);
 end
 
 function yaw = quat2yaw(q)

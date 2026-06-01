@@ -1,57 +1,78 @@
-# MATLAB — native Ubuntu 22.04
+# MATLAB — ROS connection (native Humble)
 
-Control the Yahboom micro-ROS rover from MATLAB via the **TCP bridge** (recommended) or direct DDS (experimental).
-
-## Prerequisites
-
-- **MATLAB** with **ROS Toolbox** and **Robotics System Toolbox**
-- Agent + robot + bridge running:
+Use **MATLAB R2024b** — it ships **ROS 2 Humble**, matching Ubuntu 22.04 and the Yahboom robot stack.
 
 ```bash
-cd ~/Desktop/project
-source ./setup.bash
-./scripts/start_agent.sh
-./scripts/start_matlab_bridge.sh
-./scripts/check_robot.sh    # must show /odom live
+# Launch R2024b (not R2026a)
+~/Desktop/project/Rover-Room-SIM/scripts/matlab_r2024b.sh
 ```
 
-Do **not** run `./scripts/run_teleop.sh` while MATLAB publishes `/cmd_vel`.
+## Shell (robot on)
 
-## Quick start (TCP bridge — recommended)
+```bash
+cd ~/Desktop/project/Rover-Room-SIM
+source ./setup.bash
+./scripts/start_agent.sh
+./scripts/check_robot.sh   # must show [OK] /odom live
+```
+
+Do **not** start the TCP bridge — native DDS is the default now.
+
+## MATLAB
 
 ```matlab
 cd('/home/dinuk/Desktop/project/Rover-Room-SIM/matlab')
-matlab_connect_bridge
+
+ros_test                  % /odom, /scan, /cmd_vel over DDS
+
+ctx = ros_connect();
+odom = ros_receive(ctx, 'odom', 10);
+scan = ros_receive(ctx, 'scan', 10);
+ros_cmd_vel(ctx, 0.2, 0);
+pause(1);
+ros_cmd_vel(ctx, 0, 0);
+
+matlab_connect            % full URDF + teleop GUI (native DDS)
 ```
 
-Focus the figure window, then drive with **i/j/l/,** (hold key to move, release to stop). **q/w** adjust speed, **z** quit.
+## Batch test from terminal
 
-## Optional: direct DDS
-
-Direct DDS often lists topics but does not receive live data in MATLAB. If you want to try it:
-
-```matlab
-setup_ros_dds
-matlab_ros_test
-matlab_connect
+```bash
+./scripts/matlab_r2024b.sh -batch "cd('/home/dinuk/Desktop/project/Rover-Room-SIM/matlab'); ros_test"
 ```
 
-Restart MATLAB after the first `setup_ros_dds` in a session.
+## How it works
+
+| Path | Transport |
+|------|-----------|
+| `/odom`, `/scan` subscribe | ROS Toolbox DDS (`ros_sub_read` → `LatestMessage`) |
+| `/cmd_vel` publish | ROS Toolbox DDS |
+
+`setup_ros_humble.m` sets domain 20, FastDDS profile, and aligns with `/opt/ros/humble`.
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `matlab_connect_bridge.m` | Live map + teleop via TCP bridge (port 8765) |
-| `check_robot_preflight.m` | Runs `./scripts/check_robot.sh` from MATLAB |
-| `setup_ros_dds.m` | Domain 20 + native FastDDS profile (direct DDS only) |
-| `matlab_ros_test.m` | Preflight before `matlab_connect` |
-| `matlab_connect.m` | Live map via direct DDS (may not receive data) |
+| File | Role |
+|------|------|
+| `scripts/matlab_r2024b.sh` | Launch MATLAB R2024b |
+| `setup_ros_humble.m` | Humble + domain 20 env |
+| `ros_connect.m` | Native DDS connect |
+| `ros_sub_read.m` | Read helper (polls LatestMessage) |
+| `ros_receive.m` | Read odom/scan from ctx |
+| `ros_cmd_vel.m` | Publish `/cmd_vel` |
+| `robot_ros_subscriber.m` | QoS matched to micro-ROS |
+| `ros_test.m` | One-shot check |
+| `matlab_connect.m` | Full GUI teleop |
+| `matlab_connect_bridge.m` | Legacy TCP bridge GUI (fallback) |
 
-## Troubleshooting
+## R2026a / Jazzy
 
-| Symptom | Fix |
-|---------|-----|
-| Bridge connection failed | `./scripts/start_matlab_bridge.sh` |
-| Shell check OK, no movement | Ensure bridge is running; power-cycle robot |
-| Shell check fails | Robot/agent — see `docs/NATIVE_LINUX_SETUP.md` |
+R2025a–R2026a ship Jazzy, not Humble. Use R2024b for this project, or keep `matlab_connect_bridge.m` + `./scripts/start_matlab_bridge.sh` as fallback.
+
+## Diagnostics
+
+```matlab
+ros_loopback_test
+ros_receive_sweep
+ros_dds_diag
+```

@@ -10,7 +10,7 @@ This machine runs **everything natively** — no WSL, no Windows IP forwarding.
 | LAN IP | `10.0.0.29` (robot UDP target) |
 | ROS 2 | Humble (`/opt/ros/humble`) |
 | Docker | native `docker.io` (`--net=host` for UDP 8090) |
-| MATLAB | `/home/dinuk/MATLAB/R2026a/bin/matlab` |
+| MATLAB | **R2024b** (Humble): `./scripts/matlab_r2024b.sh` — also R2026a installed |
 | Project | `/home/dinuk/Desktop/project/Rover-Room-SIM` |
 
 ## One-time setup
@@ -56,18 +56,21 @@ source ./setup.bash
 ./scripts/run_slam.sh --slam
 ```
 
-## MATLAB (TCP bridge)
+## MATLAB (native Humble DDS — R2024b)
 
-ROS and MATLAB share the same machine, but **direct DDS often does not receive live data in MATLAB**. Use the TCP bridge:
+Use **R2024b** (bundled ROS 2 Humble). No TCP bridge needed.
 
 ```bash
-./scripts/start_matlab_bridge.sh
+./scripts/matlab_r2024b.sh
 ```
 
 ```matlab
 cd('/home/dinuk/Desktop/project/Rover-Room-SIM/matlab')
-matlab_connect_bridge
+ros_test              % quick check (/odom, /scan, /cmd_vel)
+matlab_connect        % full URDF + teleop GUI
 ```
+
+Legacy bridge fallback: `./scripts/start_matlab_bridge.sh` + `matlab_connect_bridge`.
 
 Do **not** run `./scripts/run_teleop.sh` while MATLAB publishes `/cmd_vel`.
 
@@ -79,7 +82,7 @@ Do **not** run `./scripts/run_teleop.sh` while MATLAB publishes `/cmd_vel`.
 | No topics | Agent not running; wrong firmware IP; power-cycle robot |
 | Stale `/home/yahboom` warnings | `./scripts/fix_stale_paths.sh` |
 | Flash fails | `ls /dev/ttyUSB*`; `sudo usermod -aG dialout $USER` |
-| MATLAB no movement | Bridge running? `./scripts/start_matlab_bridge.sh` |
+| MATLAB no movement | Robot live? `./scripts/check_robot.sh`; use R2024b (`./scripts/matlab_r2024b.sh`) |
 
 ## Config file
 
