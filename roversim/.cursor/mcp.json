@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "unreal": {
+      "command": "/home/dinuk/.local/node/bin/node",
+      "args": [
+        "/home/dinuk/Desktop/project/Rover-Room-SIM/roversim/tools/unreal-mcp/run-mcp.js"
+      ]
+    },
+    "blender": {
+      "command": "/home/dinuk/.local/bin/uv",
+      "args": [
+        "--directory",
+        "/home/dinuk/.local/share/blender_mcp/mcp",
+        "run",
+        "blender-mcp"
+      ]
+    }
+  }
+}

@@ -58,21 +58,32 @@ ODOM_PUBS="$(topic_publishers /odom)"
 SCAN_PUBS="$(topic_publishers /scan)"
 if [ "${ODOM_PUBS:-0}" = "0" ]; then
   echo "[!!] /odom has 0 publishers (ghost topic or agent down)"
-elif timeout 6s ros2 topic echo /odom --once --no-arr >/dev/null 2>&1; then
-  echo "[OK] /odom live (${ODOM_PUBS} publisher(s))"
 else
-  echo "[!!] /odom publisher seen but no sample in 6s"
+  if [ "${ODOM_PUBS:-0}" -gt 1 ] 2>/dev/null; then
+    echo "[!!] /odom has ${ODOM_PUBS} publishers (stale DDS — ./scripts/reset_robot_ros.sh)"
+  fi
+  if timeout 6s ros2 topic echo /odom --once --no-arr >/dev/null 2>&1; then
+    echo "[OK] /odom live (${ODOM_PUBS} publisher(s))"
+  else
+    echo "[!!] /odom publisher seen but no sample in 6s"
+    echo "    Try: ./scripts/reset_robot_ros.sh"
+  fi
 fi
 
 if [ "${SCAN_PUBS:-0}" = "0" ]; then
   echo "[!!] /scan has 0 publishers — agent likely crashed on LaserScan"
 else
-  if timeout 8s ros2 topic echo /scan --qos-profile sensor_data --once --no-arr >/dev/null 2>&1; then
-    SCAN_PTS="$(timeout 5s ros2 topic echo /scan --qos-profile sensor_data --once --no-arr 2>/dev/null \
+  if [ "${SCAN_PUBS:-0}" -gt 1 ] 2>/dev/null; then
+    echo "[!!] /scan has ${SCAN_PUBS} publishers (stale DDS — ./scripts/reset_robot_ros.sh)"
+  fi
+  if timeout 8s ros2 topic echo /scan --qos-reliability reliable --once >/dev/null 2>&1; then
+    SCAN_PTS="$(timeout 5s ros2 topic echo /scan --qos-reliability reliable --once --full-length 2>/dev/null \
       | python3 -c "import sys,yaml; d=yaml.safe_load(sys.stdin.read().split('---')[0]); print(len(d.get('ranges',[])))" 2>/dev/null || echo "?")"
-    echo "[OK] /scan live (${SCAN_PUBS} publisher(s), ${SCAN_PTS} pts, sensor QoS)"
-    if [ "${SCAN_PTS:-0}" = "90" ] 2>/dev/null; then
-      echo "    (90 pts = firmware downsamples 360 lidar rays to fit micro-ROS Wi-Fi packets — normal)"
+    echo "[OK] /scan live (${SCAN_PUBS} publisher(s), ${SCAN_PTS} pts, reliable QoS)"
+    if [ "${SCAN_PTS:-0}" = "360" ] 2>/dev/null; then
+      echo "    (360 pts = full lidar ring, reliable QoS on firmware)"
+    elif [ "${SCAN_PTS:-0}" = "90" ] 2>/dev/null; then
+      echo "    (90 pts = older firmware downsampling — reflash for 360)"
     fi
   else
     echo "[!!] /scan registered but no samples (DDS message loss)"

@@ -8,6 +8,12 @@ if [ -f "$REPLICA_ROOT/config/env" ]; then
   set +a
 fi
 
+if [ -f "$REPLICA_ROOT/config/wifi.env" ]; then
+  set -a
+  . "$REPLICA_ROOT/config/wifi.env"
+  set +a
+fi
+
 export ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-20}"
 export ROS_LOCALHOST_ONLY="${ROS_LOCALHOST_ONLY:-0}"
 

@@ -1,0 +1,17 @@
+{
+    "names": {
+        "microxrcedds_client": {
+            "cmake-args": [
+                "-DUCLIENT_UDP_TRANSPORT_MTU=4096"
+            ]
+        },
+        "rmw_microxrcedds": {
+            "cmake-args": [
+                "-DRMW_UXRCE_STREAM_HISTORY=24",
+                "-DRMW_UXRCE_MAX_HISTORY=12",
+                "-DRMW_UXRCE_MAX_PUBLISHERS=4",
+                "-DRMW_UXRCE_MAX_NODES=2"
+            ]
+        }
+    }
+}

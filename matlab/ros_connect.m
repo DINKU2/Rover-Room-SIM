@@ -17,9 +17,10 @@ function ctx = ros_connect(nodeName)
 
     addpath(fileparts(mfilename('fullpath')));
 
-    if ~check_robot_preflight()
+    if ~check_robot_preflight(true)
         error('ros_connect:Preflight', ...
-            'Robot not ready. Run ./scripts/start_agent.sh && ./scripts/check_robot.sh');
+            ['Robot not ready (/odom and /scan must be live).\n' ...
+             'Run: ./scripts/reset_robot_ros.sh']);
     end
 
     ros_ensure_no_bridge();

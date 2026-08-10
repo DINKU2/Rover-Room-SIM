@@ -1,0 +1,30 @@
+{
+  "ros_x_m": [
+    -5.42,
+    3.93
+  ],
+  "ros_y_m": [
+    4.06,
+    -5.44
+  ],
+  "ue_bounds_cm": {
+    "xmin": -542.0,
+    "xmax": 393.0,
+    "ymin": -406.0,
+    "ymax": 544.0
+  },
+  "camera_ue_cm": {
+    "x": -74.5,
+    "y": 69.0,
+    "z": 1353.0
+  },
+  "camera_rotation_deg": {
+    "pitch": -90,
+    "yaw": 0,
+    "roll": 0
+  },
+  "image_size_px": [
+    1920,
+    1920
+  ]
+}

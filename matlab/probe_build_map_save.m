@@ -1,0 +1,11 @@
+slam = lidarSLAM(20, 8);
+ls = lidarScan(5 * ones(360, 1), linspace(-pi, pi, 360)');
+addScan(slam, ls);
+addScan(slam, ls, [0.5 0 0.1]);
+[scans, poses] = scansAndPoses(slam);
+map = buildMap(scans, poses, 20, 8);
+fprintf('map grid %s\n', mat2str(map.GridSize));
+mat = occupancyMatrix(map);
+fprintf('matrix %dx%d\n', size(mat, 1), size(mat, 2));
+save('/tmp/test_rover_map.mat', 'map', 'poses');
+fprintf('saved\n');

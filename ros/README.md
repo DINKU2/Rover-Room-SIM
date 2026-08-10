@@ -1,8 +1,8 @@
-# Yahboom ROS 2 workspaces (bundled)
+# Yahboom ROS 2 workspaces (reference)
 
 | Path | Description |
 |------|-------------|
-| `yahboomcar_ws/src/` | Full Yahboom car stack (bringup, nav, ctrl, description, laser, …) |
-| `gmapping_ws/` | Optional slam_gmapping workspace |
+| `yahboomcar_ws/src/` | Yahboom Pi car stack (bringup, nav, ctrl, …) |
+| `gmapping_ws/` | Optional slam_gmapping |
 
-Source-only copy (no `build/` / `install/`). See **`docs/ROS_WORKSPACE.md`**.
+This project uses **micro-ROS on ESP32** + MATLAB for SLAM/MCL. These workspaces are bundled for reference only — not required for co-sim.

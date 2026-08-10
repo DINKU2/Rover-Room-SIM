@@ -14,6 +14,20 @@ function msg = ros_sub_read(sub, timeoutSec, varargin)
     if nargin < 2, timeoutSec = 10; end
     wantFresh = any(strcmpi(varargin, 'fresh'));
 
+    if timeoutSec <= 0 && ~wantFresh
+        msg = [];
+        try
+            if isprop(sub, 'LatestMessage')
+                msg = sub.LatestMessage;
+            end
+        catch
+        end
+        if isempty(msg)
+            msg = [];
+        end
+        return;
+    end
+
     t0 = tic;
     msg = [];
 

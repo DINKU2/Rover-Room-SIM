@@ -1,0 +1,38 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Enabled: true
+      Name: Grid
+      Value: true
+    - Class: rviz_default_plugins/LaserScan
+      Enabled: true
+      Name: LaserScan
+      Topic:
+        Reliability Policy: Reliable
+        Value: /scan
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Name: Camera
+      Topic:
+        Value: /esp32_img
+      Value: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: base_link
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 3
+      Name: Current View
+      Pitch: 0.5
+      Value: Orbit (rviz)
+      Yaw: 0.8

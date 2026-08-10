@@ -32,7 +32,6 @@ static void Lidar_Ms200_Task(void *arg)
         rx_count = Uart1_Available();
         if (rx_count)
         {
-            // Uart1_Clean_Buffer();
             for (int i = 0; i < rx_count; i++)
             {
                 Ms200_Data_Receive(Uart1_Read());
@@ -80,8 +79,11 @@ uint16_t Lidar_Ms200_Get_Intensity(uint16_t point)
 // Initialize the MS200 Lidar
 void Lidar_Ms200_Init(void)
 {
-
-    xTaskCreatePinnedToCore(Lidar_Ms200_Task, "Lidar_Ms200_Task", 10*1024, NULL, 10, NULL, 1);
+    BaseType_t ok = xTaskCreatePinnedToCore(
+        Lidar_Ms200_Task, "Lidar_Ms200_Task", 10 * 1024, NULL, 10, NULL, 1);
+    if (ok != pdPASS) {
+        ESP_LOGE(TAG, "Lidar_Ms200_Task create failed (heap free=%lu)", esp_get_free_heap_size());
+    }
 }
 
 

@@ -1,64 +1,75 @@
-# Rover-Room-SIM — Yahboom micro-ROS robot stack
+# Rover-Room-SIM — Yahboom micro-ROS digital twin
 
-**Everything** for this project in one folder (~**7.2 GB**): PC stack, **ESP-IDF**, toolchains, all Yahboom ESP samples (with builds), and full ROS workspaces.
+This project builds a **digital twin** of a real Yahboom micro-ROS rover and runs **co-simulation**: the physical robot and an Unreal Engine twin operate at the same time, driven by the same commands and kept aligned through map-based localization.
 
-See **`MANIFEST.md`** for the complete file list.
+The real robot publishes lidar and odometry over ROS 2. MATLAB/Simulink localizes the rover on a saved room map (MCL) and moves the Unreal **RoverTwin** to match. You teleop the hardware in one terminal while watching the virtual room track the real pose.
 
-## What you get
+---
 
-| Component | Location |
-|-----------|----------|
-| Drive + lidar + SLAM scripts | `scripts/`, `config/`, `launch/` |
-| ESP-IDF + compilers | `esp/esp-idf/`, `tooling/espressif/` |
-| All micro-ROS / ESP samples | `esp/Samples/` |
-| Yahboom Pi ROS packages (built) | `ros/yahboomcar_ws/` |
-| Other ROS ws + zip archives | `ros/`, `archives/` |
+## Project goal
 
-## Quick start (native Ubuntu 22.04)
+| Layer | Role |
+|-------|------|
+| **Real robot** | Drives in the physical room; publishes `/scan`, `/odom`; accepts `/cmd_vel` |
+| **ROS 2 + micro-ROS agent** | Bridges the ESP32 over Wi‑Fi (UDP) into the PC ROS graph |
+| **MATLAB / Simulink** | MCL localization on a saved map; transforms pose into Unreal coordinates |
+| **Unreal Engine (RoverTwin)** | Visual digital twin in a scanned copy of the room |
 
-```bash
-cd ~/Desktop/project/Rover-Room-SIM
-cp config/env.example config/env   # edit MICRO_ROS_AGENT_IP if needed
-source ./setup.bash
-./scripts/start_agent.sh
-./scripts/check_robot.sh
-./scripts/run_teleop.sh
-```
+**Co-sim workflow:** one teleop stream drives the real rover; MCL tracks where it is on the map; Simulink updates the Unreal twin so both move together in parallel.
 
-See **`docs/NATIVE_LINUX_SETUP.md`** for one-time install and MATLAB bridge workflow.
+<img src="cosim.png" width="100%" alt="Co-simulation screenshot" />
 
-## Architecture
+---
 
-| Doc | Content |
-|-----|---------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design — toolboxes, ROS, Unreal, maps, frames |
-| [docs/PHASES.md](docs/PHASES.md) | Implementation phases and exit criteria |
-| [docs/SIMULINK_ROS_BLUEPRINT.md](docs/SIMULINK_ROS_BLUEPRINT.md) | Step-by-step Simulink + ROS + Unreal block diagram |
-
-## Flash firmware (bundled IDF — no ~/esp needed)
+## Flash firmware (drive board)
 
 ```bash
+# Wi-Fi: config/wifi.env
 source ./setup.bash
-./scripts/esp_menuconfig.sh
 ./scripts/flash_firmware.sh
 ```
 
-## SLAM
+---
+
+## Rover dual control (Stage 4 co-sim)
+
+**Rover dual control** is the Simulink model that runs MCL localization and drives the Unreal digital twin while the real robot is teleoped over ROS.
+
+Prerequisites:
+
+- Saved SLAM map from Stage 2 (`maps/rover_room_*.mat`)
+- Unreal alignment file (`maps/unreal_alignment.mat`) from manual align
+- Unreal **RoverTwin** project under `roversim/RoverTwin`
+- micro-ROS agent running and robot responding
+
+More detail: **`rover-dual/README.md`**
+
+### Run co-sim (four terminals)
+
+**Terminal 1 — robot link**
 
 ```bash
-./scripts/run_slam.sh --slam
+./scripts/start_agent.sh
+./scripts/check_robot.sh
 ```
 
-## Layout
+**Terminal 2 — Simulink (MCL + Unreal twin)**
 
-```text
-project/
-├── esp/esp-idf/              # ESP-IDF 5.1
-├── esp/Samples/              # microros_samples, extra_components, …
-├── tooling/espressif/        # ~/.espressif toolchains
-├── ros/yahboomcar_ws/        # full colcon workspace
-├── ros/gmapping_ws/ imu_ws/ …
-├── archives/*.zip
-├── home/config_robot.py …
-└── scripts/ config/ docs/ …
+```matlab
+setup_rover_paths()
+run_rover_dual_control()
+```
+
+**Terminal 3 — teleop the real rover**
+
+```bash
+source ./setup.bash
+./scripts/run_teleop.sh
+```
+
+**Terminal 4 — live camera**
+
+```bash
+source ./setup.bash
+./scripts/show_camera_feed.sh
 ```

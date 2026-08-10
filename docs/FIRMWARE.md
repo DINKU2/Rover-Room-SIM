@@ -1,58 +1,34 @@
-# ESP32 firmware (bundled in `replica/esp/`)
+# ESP32 firmware
 
-Firmware lives **inside this repo** — you do not need `~/esp` on the new machine except for **ESP-IDF** itself.
+Production project: `esp/Samples/microros_samples/lidar_publisher/`
 
-## Production project
-
-```text
-replica/esp/Samples/microros_samples/lidar_publisher/
-```
-
-| Topic / role | |
-|--------------|--|
+| Topic | Role |
+|-------|------|
 | `/scan` | Lidar |
-| `/odom` | Wheel odometry (`odom` → `base_footprint`) |
-| `/cmd_vel` | Subscribe — drive |
+| `/odom` | Wheel odometry |
+| `/cmd_vel` | Drive |
 
-Merged from Yahboom `odom_publisher` + `lidar_publisher` + `twist_subscriber`.
+Camera module (separate ESP): `/espRos/esp32camera` — see [CAMERA_HARDWARE.md](CAMERA_HARDWARE.md). Do **not** flash camera firmware to the drive board (`/dev/ttyUSB0`).
 
-## Configure Wi-Fi and agent IP
-
-```bash
-cd replica
-source ./setup.bash
-./scripts/esp_menuconfig.sh
-```
-
-Set:
-
-- Wi-Fi SSID / password (same LAN as PC)
-- **micro-ROS agent IP** = `MICRO_ROS_AGENT_IP` in `config/env`
-- Port **8090**
-
-Or edit `sdkconfig` directly (already copied from your working VM).
-
-## Build and flash
+## Flash drive board
 
 ```bash
-# ESP-IDF must be installed — docs/ESP_IDF_SETUP.md
+# Wi-Fi: config/wifi.env
+# Agent IP: config/env
 source ./setup.bash
-export ESP_SERIAL_PORT=/dev/ttyUSB0   # optional
 ./scripts/flash_firmware.sh
 ```
 
-## All bundled micro-ROS samples
+Wi-Fi and agent IP are synced from `config/wifi.env` + `config/env` via `./scripts/sync_firmware_config.sh` (called by flash script).
 
-Under `esp/Samples/microros_samples/`:
+## Camera module (one-time)
 
-- `lidar_publisher` — **use this**
-- `twist_subscriber`, `odom_publisher`, `imu_publisher`, …
-- `publisher`, `subscriber`, `beep_subscriber`, `servo_subscriber`, …
-
-Shared components: `esp/Samples/extra_components/micro_ros_espidf_component/`
+```bash
+source ./setup.bash
+./scripts/setup_camera_module.sh
+```
 
 ## After PC IP changes
 
-1. `config/env` → `MICRO_ROS_AGENT_IP`
-2. `./scripts/esp_menuconfig.sh` or edit `sdkconfig`
-3. `./scripts/flash_firmware.sh`
+1. Edit `config/env` → `MICRO_ROS_AGENT_IP`
+2. `./scripts/flash_firmware.sh`

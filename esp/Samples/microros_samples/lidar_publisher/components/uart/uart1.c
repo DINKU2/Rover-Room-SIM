@@ -61,7 +61,10 @@ void Uart1_Init(void)
     
     RingBuffer_Init(&uart1_ringbuf, RX1_BUF_SIZE);
 
-    xTaskCreate(Uart1_Rx_Task, "Uart1_Rx_Task", 5*1024, NULL, configMAX_PRIORITIES, NULL);
+    BaseType_t ok = xTaskCreate(Uart1_Rx_Task, "Uart1_Rx_Task", 5 * 1024, NULL, configMAX_PRIORITIES, NULL);
+    if (ok != pdPASS) {
+        ESP_LOGE(TAG, "Uart1_Rx_Task create failed (heap free=%lu)", esp_get_free_heap_size());
+    }
 }
 
 // 通过串口1发送一串数据 Send a string of data through serial port 1

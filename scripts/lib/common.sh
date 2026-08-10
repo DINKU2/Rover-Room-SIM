@@ -13,6 +13,13 @@ if [ -f "$REPLICA_ROOT/config/env" ]; then
   set +a
 fi
 
+if [ -f "$REPLICA_ROOT/config/wifi.env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  . "$REPLICA_ROOT/config/wifi.env"
+  set +a
+fi
+
 export ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-20}"
 
 if [ -S /var/run/docker.sock ]; then

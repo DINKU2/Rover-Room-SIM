@@ -1,0 +1,39 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.3",
+	"Category": "Simulation",
+	"Description": "RoverTwin digital twin simulation project",
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		},
+		{
+			"Name": "SunPosition",
+			"Enabled": true
+		},
+		{
+			"Name": "GeoReferencing",
+			"Enabled": true
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "MathWorksSimulation",
+			"Enabled": true
+		},
+		{
+			"Name": "MathWorksAutomotiveContent",
+			"Enabled": true
+		},
+		{
+			"Name": "MathWorksGeoSpatial",
+			"Enabled": false
+		}
+	]
+}

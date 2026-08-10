@@ -1,5 +1,6 @@
 # --- Local / secrets ---
 config/env
+config/wifi.env
 .maps/
 *.log
 /tmp/
@@ -12,6 +13,9 @@ venv/
 
 # MATLAB generated at runtime
 matlab/fastdds_matlab_native.xml
+rover-dual/simulink/slprj/
+rover-dual/simulink/*.slxc
+rover-dual/simulink/*.autosave
 
 # --- Large vendored stacks (install locally; see docs/NATIVE_LINUX_SETUP.md) ---
 esp/esp-idf/
@@ -45,6 +49,35 @@ esp/Samples/esp32_samples/
 esp/Samples/microros_samples/*/
 !esp/Samples/microros_samples/lidar_publisher/
 esp/Samples/custom_components/
+
+# Unreal Engine (generated locally via scripts/setup_unreal_project.sh)
+unreal/RoverRoomSIM/DerivedDataCache/
+unreal/RoverRoomSIM/Intermediate/
+unreal/RoverRoomSIM/Saved/
+unreal/RoverRoomSIM/.room_mesh_imported
+unreal/AutoVrtlEnv/
+
+# RoverTwin (generated locally via scripts/setup_rovertwin.sh)
+buildrover/RoverTwin/Binaries/
+buildrover/RoverTwin/Intermediate/
+buildrover/RoverTwin/Saved/
+buildrover/RoverTwin/DerivedDataCache/
+buildrover/RoverTwin/.rovertwin_imported
+buildrover/RoverTwin/Content/MyRoom/
+buildrover/RoverTwin/Content/Maps/
+buildrover/RoverTwin/Content/Rover/Meshes/
+buildrover/RoverTwin/Content/SimBlank/
+buildrover/Linux/
+
+# RoverTwin under roversim/ (Unreal project + docs; rebuild binaries locally)
+roversim/RoverTwin/Binaries/
+roversim/RoverTwin/Intermediate/
+roversim/RoverTwin/Saved/
+roversim/RoverTwin/DerivedDataCache/
+roversim/Linux/
+
+# Unreal MCP (Node deps; package.json is committed)
+tools/unreal-mcp/node_modules/
 
 # OS / editor
 .DS_Store

@@ -2,12 +2,12 @@ function y = simulink_live_map(u)
 %SIMULINK_LIVE_MAP  Live 2D map for rover_ros_io (scan dots + odom trail).
 %
 %   Called from Interpreted MATLAB Function block with one concatenated input:
-%     u(1:128)       scanX
-%     u(129:256)     scanY
+%     u(1:360)       scanX
+%     u(361:720)     scanY
 %     u(257)         robot x
 %     u(258)         robot y
 
-    N = 128;
+    N = 360;
     scanX = u(1:N);
     scanY = u(N+1:2*N);
     x = u(2*N+1);

@@ -1,0 +1,47 @@
+menu "Rover camera (Yahboom WiFi module)"
+
+    config ROVER_ENABLE_CAMERA
+        bool "Enable JPEG camera publisher (/espRos/esp32camera)"
+        default n
+        help
+            Publishes sensor_msgs/CompressedImage on namespace espRos.
+            Requires PSRAM. Use ROVER_CAMERA_ONLY on the Yahboom WiFi camera
+            module — GPIO pins conflict with motors on the main drive board.
+
+    config ROVER_CAMERA_ONLY
+        bool "Camera-only firmware (no drive/lidar)"
+        depends on ROVER_ENABLE_CAMERA
+        default n
+        help
+            Skip motor, lidar, and cmd_vel. Flash this profile onto the
+            separate Yahboom ROS-WiFi camera ESP32-S3 module.
+
+    config ROVER_CAMERA_JPEG_QUALITY
+        int "JPEG quality (0=best, 63=worst)"
+        depends on ROVER_ENABLE_CAMERA
+        range 6 40
+        default 15
+
+    config ROVER_CAMERA_VFLIP
+        bool "Vertical flip sensor image"
+        depends on ROVER_ENABLE_CAMERA
+        default y
+
+    config ROVER_CAMERA_MIRROR
+        bool "Horizontal mirror sensor image"
+        depends on ROVER_ENABLE_CAMERA
+        default y
+
+    config ROVER_CAMERA_PERIOD_MS
+        int "Publish period (ms)"
+        depends on ROVER_ENABLE_CAMERA
+        range 100 2000
+        default 200
+
+    config ROVER_CAMERA_MAX_JPEG_BYTES
+        int "Max JPEG payload bytes for micro-ROS buffer"
+        depends on ROVER_ENABLE_CAMERA
+        range 8192 65536
+        default 32768
+
+endmenu
